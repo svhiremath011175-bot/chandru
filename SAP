@@ -1,0 +1,1324 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/svhiremath011175-bot/chandru/blob/main/SAP\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "\n",
+        "# Create a DataFrame with 1000 rows and 5 columns\n",
+        "df_more_data = pd.DataFrame({\n",
+        "    'feature_1': np.random.rand(1000),\n",
+        "    'feature_2': np.random.randint(0, 100, 1000),\n",
+        "    'feature_3': np.random.randn(1000),\n",
+        "    'feature_4': np.random.choice(['A', 'B', 'C', 'D'], 1000),\n",
+        "    'target': np.random.normal(loc=10, scale=2, size=1000)\n",
+        "})\n",
+        "\n",
+        "print(df_more_data.head())"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "xGIEcXxL3Iim",
+        "outputId": "e7427093-0188-49ae-bc86-c3c1de144beb"
+      },
+      "execution_count": 27,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "   feature_1  feature_2  feature_3 feature_4     target\n",
+            "0   0.492979         67  -1.253186         A   7.556974\n",
+            "1   0.491191         90  -2.091958         A   7.680590\n",
+            "2   0.660582         41  -0.560491         A   9.726647\n",
+            "3   0.962973         63   0.175869         A  11.461831\n",
+            "4   0.938333          4   0.754587         D   9.432794\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "e3a2a9b2"
+      },
+      "source": [
+        "# Task\n",
+        "Prepare `df_more_data` for binary classification by converting its 'target' column, performing one-hot encoding on 'feature_4', splitting data into training and testing sets, and normalizing numerical features using StandardScaler."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "c1331593"
+      },
+      "source": [
+        "## Prepare Data for Binary Classification\n",
+        "\n",
+        "### Subtask:\n",
+        "Load the existing `df_more_data`, convert the 'target' column into a binary classification target, explore the data, perform one-hot encoding on the categorical 'feature_4', split the data into independent features (X) and dependent variable (Y), then split X and Y into training and testing sets, and finally, normalize the numerical features using StandardScaler.\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "74c2ee41"
+      },
+      "source": [
+        "**Reasoning**:\n",
+        "The first step is to convert the continuous 'target' column into a binary target. I will calculate the mean of the 'target' column and then assign 1 to values greater than the mean and 0 otherwise. This aligns with the first instruction of the subtask.\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "708dbccd",
+        "outputId": "e5cbbecc-0f53-4f02-ef66-f29cfdc9ef10"
+      },
+      "source": [
+        "mean_target = df_more_data['target'].mean()\n",
+        "df_more_data['target'] = (df_more_data['target'] > mean_target).astype(int)\n",
+        "\n",
+        "print(\"First 5 rows with new binary target column:\")\n",
+        "print(df_more_data.head())\n",
+        "print(\"\\nValue counts for the new binary target:\")\n",
+        "print(df_more_data['target'].value_counts())"
+      ],
+      "execution_count": 28,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "First 5 rows with new binary target column:\n",
+            "   feature_1  feature_2  feature_3 feature_4  target\n",
+            "0   0.492979         67  -1.253186         A       0\n",
+            "1   0.491191         90  -2.091958         A       0\n",
+            "2   0.660582         41  -0.560491         A       0\n",
+            "3   0.962973         63   0.175869         A       1\n",
+            "4   0.938333          4   0.754587         D       0\n",
+            "\n",
+            "Value counts for the new binary target:\n",
+            "target\n",
+            "1    514\n",
+            "0    486\n",
+            "Name: count, dtype: int64\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "d36caab5"
+      },
+      "source": [
+        "**Reasoning**:\n",
+        "Now that the 'target' column is binary, I will examine the basic statistics and data types of `df_more_data` using `.describe()` and `.info()`, and check for any missing values using `.isnull().sum()`, as per the second instruction in the subtask.\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "4eb60e44",
+        "outputId": "14f1098b-8f17-47c1-d8c7-a414ef602b33"
+      },
+      "source": [
+        "print(\"\\n--- DataFrame Info ---\")\n",
+        "df_more_data.info()\n",
+        "\n",
+        "print(\"\\n--- DataFrame Description ---\")\n",
+        "print(df_more_data.describe())\n",
+        "\n",
+        "print(\"\\n--- Missing Values ---\")\n",
+        "print(df_more_data.isnull().sum())"
+      ],
+      "execution_count": 29,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "--- DataFrame Info ---\n",
+            "<class 'pandas.core.frame.DataFrame'>\n",
+            "RangeIndex: 1000 entries, 0 to 999\n",
+            "Data columns (total 5 columns):\n",
+            " #   Column     Non-Null Count  Dtype  \n",
+            "---  ------     --------------  -----  \n",
+            " 0   feature_1  1000 non-null   float64\n",
+            " 1   feature_2  1000 non-null   int64  \n",
+            " 2   feature_3  1000 non-null   float64\n",
+            " 3   feature_4  1000 non-null   object \n",
+            " 4   target     1000 non-null   int64  \n",
+            "dtypes: float64(2), int64(2), object(1)\n",
+            "memory usage: 39.2+ KB\n",
+            "\n",
+            "--- DataFrame Description ---\n",
+            "         feature_1    feature_2    feature_3       target\n",
+            "count  1000.000000  1000.000000  1000.000000  1000.000000\n",
+            "mean      0.494919    50.610000     0.009725     0.514000\n",
+            "std       0.290925    28.860229     1.055173     0.500054\n",
+            "min       0.000005     0.000000    -3.224188     0.000000\n",
+            "25%       0.246282    26.750000    -0.694943     0.000000\n",
+            "50%       0.503412    50.000000     0.017862     1.000000\n",
+            "75%       0.751427    76.000000     0.728665     1.000000\n",
+            "max       0.999791    99.000000     4.242040     1.000000\n",
+            "\n",
+            "--- Missing Values ---\n",
+            "feature_1    0\n",
+            "feature_2    0\n",
+            "feature_3    0\n",
+            "feature_4    0\n",
+            "target       0\n",
+            "dtype: int64\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "f0316b87"
+      },
+      "source": [
+        "**Reasoning**:\n",
+        "Following the subtask instructions, I will now perform one-hot encoding on the 'feature_4' column using `pd.get_dummies`, then concatenate the new encoded columns with the original DataFrame and drop the original 'feature_4' column to prepare the data for modeling.\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "25a2c079",
+        "outputId": "8a2b2b72-9257-4af0-b2cc-78f0e380804b"
+      },
+      "source": [
+        "df_encoded = pd.get_dummies(df_more_data, columns=['feature_4'], drop_first=True)\n",
+        "\n",
+        "print(\"First 5 rows of DataFrame after one-hot encoding 'feature_4':\")\n",
+        "print(df_encoded.head())\n",
+        "print(\"\\nDataFrame Info after one-hot encoding:\")\n",
+        "df_encoded.info()"
+      ],
+      "execution_count": 30,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "First 5 rows of DataFrame after one-hot encoding 'feature_4':\n",
+            "   feature_1  feature_2  feature_3  target  feature_4_B  feature_4_C  \\\n",
+            "0   0.492979         67  -1.253186       0        False        False   \n",
+            "1   0.491191         90  -2.091958       0        False        False   \n",
+            "2   0.660582         41  -0.560491       0        False        False   \n",
+            "3   0.962973         63   0.175869       1        False        False   \n",
+            "4   0.938333          4   0.754587       0        False        False   \n",
+            "\n",
+            "   feature_4_D  \n",
+            "0        False  \n",
+            "1        False  \n",
+            "2        False  \n",
+            "3        False  \n",
+            "4         True  \n",
+            "\n",
+            "DataFrame Info after one-hot encoding:\n",
+            "<class 'pandas.core.frame.DataFrame'>\n",
+            "RangeIndex: 1000 entries, 0 to 999\n",
+            "Data columns (total 7 columns):\n",
+            " #   Column       Non-Null Count  Dtype  \n",
+            "---  ------       --------------  -----  \n",
+            " 0   feature_1    1000 non-null   float64\n",
+            " 1   feature_2    1000 non-null   int64  \n",
+            " 2   feature_3    1000 non-null   float64\n",
+            " 3   target       1000 non-null   int64  \n",
+            " 4   feature_4_B  1000 non-null   bool   \n",
+            " 5   feature_4_C  1000 non-null   bool   \n",
+            " 6   feature_4_D  1000 non-null   bool   \n",
+            "dtypes: bool(3), float64(2), int64(2)\n",
+            "memory usage: 34.3 KB\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "520f80fb"
+      },
+      "source": [
+        "**Reasoning**:\n",
+        "Now that the data is one-hot encoded and the target is binary, I will separate the DataFrame into independent features (X) and the dependent variable (Y), as instructed by the subtask.\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "4499d96e",
+        "outputId": "78fbefa8-053b-4c08-be95-cc46ad96bd5b"
+      },
+      "source": [
+        "X = df_encoded.drop('target', axis=1)\n",
+        "Y = df_encoded['target']\n",
+        "\n",
+        "print(\"First 5 rows of X (features):\")\n",
+        "print(X.head())\n",
+        "print(\"\\nFirst 5 rows of Y (target):\")\n",
+        "print(Y.head())"
+      ],
+      "execution_count": 31,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "First 5 rows of X (features):\n",
+            "   feature_1  feature_2  feature_3  feature_4_B  feature_4_C  feature_4_D\n",
+            "0   0.492979         67  -1.253186        False        False        False\n",
+            "1   0.491191         90  -2.091958        False        False        False\n",
+            "2   0.660582         41  -0.560491        False        False        False\n",
+            "3   0.962973         63   0.175869        False        False        False\n",
+            "4   0.938333          4   0.754587        False        False         True\n",
+            "\n",
+            "First 5 rows of Y (target):\n",
+            "0    0\n",
+            "1    0\n",
+            "2    0\n",
+            "3    1\n",
+            "4    0\n",
+            "Name: target, dtype: int64\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ceeda70f"
+      },
+      "source": [
+        "**Reasoning**:\n",
+        "Following the subtask instructions, I will now split the features (X) and target (Y) into training and testing sets using a 80/20 ratio and a `random_state` for reproducibility.\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "57fe5ea4",
+        "outputId": "2171dead-bbaa-4ea7-fd7d-7e3f3be43830"
+      },
+      "source": [
+        "from sklearn.model_selection import train_test_split\n",
+        "\n",
+        "X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)\n",
+        "\n",
+        "print(\"Shape of X_train:\", X_train.shape)\n",
+        "print(\"Shape of X_test:\", X_test.shape)\n",
+        "print(\"Shape of Y_train:\", Y_train.shape)\n",
+        "print(\"Shape of Y_test:\", Y_test.shape)"
+      ],
+      "execution_count": 32,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Shape of X_train: (800, 6)\n",
+            "Shape of X_test: (200, 6)\n",
+            "Shape of Y_train: (800,)\n",
+            "Shape of Y_test: (200,)\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "f94303d4"
+      },
+      "source": [
+        "**Reasoning**:\n",
+        "As per the final instruction of the subtask, I will identify the numerical columns in `X_train`, initialize a `StandardScaler`, fit it on `X_train`'s numerical columns, and then transform both `X_train` and `X_test`'s numerical columns to normalize them.\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "12cec94f",
+        "outputId": "6e95afa2-a1dc-4cd4-f599-0d8877f2967b"
+      },
+      "source": [
+        "from sklearn.preprocessing import StandardScaler\n",
+        "\n",
+        "# Identify numerical columns in X_train\n",
+        "numerical_cols = X_train.select_dtypes(include=['float64', 'int64']).columns\n",
+        "\n",
+        "# Initialize StandardScaler\n",
+        "scaler = StandardScaler()\n",
+        "\n",
+        "# Fit the scaler on the numerical columns of X_train and transform them\n",
+        "X_train_scaled_numerical = scaler.fit_transform(X_train[numerical_cols])\n",
+        "X_test_scaled_numerical = scaler.transform(X_test[numerical_cols])\n",
+        "\n",
+        "# Create new DataFrames for scaled numerical features\n",
+        "X_train_scaled_df = pd.DataFrame(X_train_scaled_numerical, columns=numerical_cols, index=X_train.index)\n",
+        "X_test_scaled_df = pd.DataFrame(X_test_scaled_numerical, columns=numerical_cols, index=X_test.index)\n",
+        "\n",
+        "# Replace original numerical columns with scaled ones in X_train and X_test\n",
+        "X_train[numerical_cols] = X_train_scaled_df\n",
+        "X_test[numerical_cols] = X_test_scaled_df\n",
+        "\n",
+        "print(\"First 5 rows of X_train after scaling numerical features:\")\n",
+        "print(X_train.head())\n",
+        "print(\"\\nFirst 5 rows of X_test after scaling numerical features:\")\n",
+        "print(X_test.head())"
+      ],
+      "execution_count": 33,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "First 5 rows of X_train after scaling numerical features:\n",
+            "     feature_1  feature_2  feature_3  feature_4_B  feature_4_C  feature_4_D\n",
+            "29   -1.032018  -1.491976   0.651669         True        False        False\n",
+            "535   1.224447   1.615768   1.853048        False        False        False\n",
+            "695  -1.342129  -1.319323   1.751193        False         True        False\n",
+            "557   1.425302  -0.559653   0.211244        False         True        False\n",
+            "836   0.441162  -1.043080   0.361285        False        False         True\n",
+            "\n",
+            "First 5 rows of X_test after scaling numerical features:\n",
+            "     feature_1  feature_2  feature_3  feature_4_B  feature_4_C  feature_4_D\n",
+            "521  -1.621049   1.339524   0.496866        False        False         True\n",
+            "737   1.487006   1.650298  -1.128350        False         True        False\n",
+            "740   1.470858   1.028749  -1.533946        False        False        False\n",
+            "660  -0.296971   1.132341  -0.759233        False        False         True\n",
+            "411   0.802008   1.201402  -0.344738        False         True        False\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "e981afc8"
+      },
+      "source": [
+        "## Build and Compile Deep Learning Model\n",
+        "\n",
+        "### Subtask:\n",
+        "Construct a Keras Sequential Neural Network model for binary classification. This will involve defining the input layer with appropriate shape, adding hidden layers with ReLU activation functions, and an output layer with a single neuron and a Sigmoid activation function. The model will then be compiled using 'binary_crossentropy' as the loss function, the Adam optimizer, and 'accuracy', 'Precision', and 'Recall' as metrics.\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "601ac632"
+      },
+      "source": [
+        "**Reasoning**:\n",
+        "I need to import the necessary Keras components, define the input shape, construct the sequential model with input, hidden, and output layers using specified activation functions, and then compile it with the correct loss, optimizer, and metrics for binary classification.\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 354
+        },
+        "id": "df6ed073",
+        "outputId": "26a4ca18-eff7-4bc4-bc23-535566d0f1ed"
+      },
+      "source": [
+        "from tensorflow.keras.models import Sequential\n",
+        "from tensorflow.keras.layers import Dense\n",
+        "from tensorflow.keras.metrics import Precision, Recall\n",
+        "\n",
+        "# 2. Determine the number of input features\n",
+        "num_input_features = X_train.shape[1]\n",
+        "\n",
+        "# 3. Initialize a Sequential model\n",
+        "model = Sequential()\n",
+        "\n",
+        "# 4. Add the input layer\n",
+        "model.add(Dense(64, input_shape=(num_input_features,), activation='relu'))\n",
+        "\n",
+        "# 5. Add hidden layers\n",
+        "model.add(Dense(32, activation='relu'))\n",
+        "model.add(Dense(16, activation='relu'))\n",
+        "\n",
+        "# 6. Add the output layer\n",
+        "model.add(Dense(1, activation='sigmoid'))\n",
+        "\n",
+        "# 7. Compile the model\n",
+        "model.compile(loss='binary_crossentropy',\n",
+        "              optimizer='adam',\n",
+        "              metrics=['accuracy', Precision(), Recall()])\n",
+        "\n",
+        "# 8. Print a summary of the model architecture\n",
+        "print(\"\\n--- Model Summary ---\")\n",
+        "model.summary()\n"
+      ],
+      "execution_count": 34,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "--- Model Summary ---\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "/usr/local/lib/python3.12/dist-packages/keras/src/layers/core/dense.py:93: UserWarning: Do not pass an `input_shape`/`input_dim` argument to a layer. When using Sequential models, prefer using an `Input(shape)` object as the first layer in the model instead.\n",
+            "  super().__init__(activity_regularizer=activity_regularizer, **kwargs)\n"
+          ]
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "\u001b[1mModel: \"sequential_7\"\u001b[0m\n"
+            ],
+            "text/html": [
+              "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\">Model: \"sequential_7\"</span>\n",
+              "</pre>\n"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓\n",
+              "┃\u001b[1m \u001b[0m\u001b[1mLayer (type)                   \u001b[0m\u001b[1m \u001b[0m┃\u001b[1m \u001b[0m\u001b[1mOutput Shape          \u001b[0m\u001b[1m \u001b[0m┃\u001b[1m \u001b[0m\u001b[1m      Param #\u001b[0m\u001b[1m \u001b[0m┃\n",
+              "┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩\n",
+              "│ dense_21 (\u001b[38;5;33mDense\u001b[0m)                │ (\u001b[38;5;45mNone\u001b[0m, \u001b[38;5;34m64\u001b[0m)             │           \u001b[38;5;34m448\u001b[0m │\n",
+              "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+              "│ dense_22 (\u001b[38;5;33mDense\u001b[0m)                │ (\u001b[38;5;45mNone\u001b[0m, \u001b[38;5;34m32\u001b[0m)             │         \u001b[38;5;34m2,080\u001b[0m │\n",
+              "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+              "│ dense_23 (\u001b[38;5;33mDense\u001b[0m)                │ (\u001b[38;5;45mNone\u001b[0m, \u001b[38;5;34m16\u001b[0m)             │           \u001b[38;5;34m528\u001b[0m │\n",
+              "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+              "│ dense_24 (\u001b[38;5;33mDense\u001b[0m)                │ (\u001b[38;5;45mNone\u001b[0m, \u001b[38;5;34m1\u001b[0m)              │            \u001b[38;5;34m17\u001b[0m │\n",
+              "└─────────────────────────────────┴────────────────────────┴───────────────┘\n"
+            ],
+            "text/html": [
+              "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓\n",
+              "┃<span style=\"font-weight: bold\"> Layer (type)                    </span>┃<span style=\"font-weight: bold\"> Output Shape           </span>┃<span style=\"font-weight: bold\">       Param # </span>┃\n",
+              "┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩\n",
+              "│ dense_21 (<span style=\"color: #0087ff; text-decoration-color: #0087ff\">Dense</span>)                │ (<span style=\"color: #00d7ff; text-decoration-color: #00d7ff\">None</span>, <span style=\"color: #00af00; text-decoration-color: #00af00\">64</span>)             │           <span style=\"color: #00af00; text-decoration-color: #00af00\">448</span> │\n",
+              "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+              "│ dense_22 (<span style=\"color: #0087ff; text-decoration-color: #0087ff\">Dense</span>)                │ (<span style=\"color: #00d7ff; text-decoration-color: #00d7ff\">None</span>, <span style=\"color: #00af00; text-decoration-color: #00af00\">32</span>)             │         <span style=\"color: #00af00; text-decoration-color: #00af00\">2,080</span> │\n",
+              "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+              "│ dense_23 (<span style=\"color: #0087ff; text-decoration-color: #0087ff\">Dense</span>)                │ (<span style=\"color: #00d7ff; text-decoration-color: #00d7ff\">None</span>, <span style=\"color: #00af00; text-decoration-color: #00af00\">16</span>)             │           <span style=\"color: #00af00; text-decoration-color: #00af00\">528</span> │\n",
+              "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+              "│ dense_24 (<span style=\"color: #0087ff; text-decoration-color: #0087ff\">Dense</span>)                │ (<span style=\"color: #00d7ff; text-decoration-color: #00d7ff\">None</span>, <span style=\"color: #00af00; text-decoration-color: #00af00\">1</span>)              │            <span style=\"color: #00af00; text-decoration-color: #00af00\">17</span> │\n",
+              "└─────────────────────────────────┴────────────────────────┴───────────────┘\n",
+              "</pre>\n"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "\u001b[1m Total params: \u001b[0m\u001b[38;5;34m3,073\u001b[0m (12.00 KB)\n"
+            ],
+            "text/html": [
+              "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\"> Total params: </span><span style=\"color: #00af00; text-decoration-color: #00af00\">3,073</span> (12.00 KB)\n",
+              "</pre>\n"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "\u001b[1m Trainable params: \u001b[0m\u001b[38;5;34m3,073\u001b[0m (12.00 KB)\n"
+            ],
+            "text/html": [
+              "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\"> Trainable params: </span><span style=\"color: #00af00; text-decoration-color: #00af00\">3,073</span> (12.00 KB)\n",
+              "</pre>\n"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "\u001b[1m Non-trainable params: \u001b[0m\u001b[38;5;34m0\u001b[0m (0.00 B)\n"
+            ],
+            "text/html": [
+              "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\"> Non-trainable params: </span><span style=\"color: #00af00; text-decoration-color: #00af00\">0</span> (0.00 B)\n",
+              "</pre>\n"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "aa57b91c"
+      },
+      "source": [
+        "**Reasoning**:\n",
+        "The previous output included a UserWarning about passing `input_shape` directly to the `Dense` layer in a `Sequential` model. To adhere to Keras' best practices and resolve this warning, I will explicitly add an `Input` layer as the first layer of the model.\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 298
+        },
+        "id": "89a632c3",
+        "outputId": "ae193e7a-b208-4cda-ee29-18fd042eb09c"
+      },
+      "source": [
+        "from tensorflow.keras.models import Sequential\n",
+        "from tensorflow.keras.layers import Dense, Input\n",
+        "from tensorflow.keras.metrics import Precision, Recall\n",
+        "\n",
+        "# 2. Determine the number of input features\n",
+        "num_input_features = X_train.shape[1]\n",
+        "\n",
+        "# 3. Initialize a Sequential model\n",
+        "model = Sequential()\n",
+        "\n",
+        "# 4. Add the input layer using Input()\n",
+        "model.add(Input(shape=(num_input_features,)))\n",
+        "model.add(Dense(64, activation='relu'))\n",
+        "\n",
+        "# 5. Add hidden layers\n",
+        "model.add(Dense(32, activation='relu'))\n",
+        "model.add(Dense(16, activation='relu'))\n",
+        "\n",
+        "# 6. Add the output layer\n",
+        "model.add(Dense(1, activation='sigmoid'))\n",
+        "\n",
+        "# 7. Compile the model\n",
+        "model.compile(loss='binary_crossentropy',\n",
+        "              optimizer='adam',\n",
+        "              metrics=['accuracy', Precision(), Recall()])\n",
+        "\n",
+        "# 8. Print a summary of the model architecture\n",
+        "print(\"\\n--- Model Summary ---\")\n",
+        "model.summary()\n"
+      ],
+      "execution_count": 35,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "--- Model Summary ---\n"
+          ]
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "\u001b[1mModel: \"sequential_8\"\u001b[0m\n"
+            ],
+            "text/html": [
+              "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\">Model: \"sequential_8\"</span>\n",
+              "</pre>\n"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓\n",
+              "┃\u001b[1m \u001b[0m\u001b[1mLayer (type)                   \u001b[0m\u001b[1m \u001b[0m┃\u001b[1m \u001b[0m\u001b[1mOutput Shape          \u001b[0m\u001b[1m \u001b[0m┃\u001b[1m \u001b[0m\u001b[1m      Param #\u001b[0m\u001b[1m \u001b[0m┃\n",
+              "┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩\n",
+              "│ dense_25 (\u001b[38;5;33mDense\u001b[0m)                │ (\u001b[38;5;45mNone\u001b[0m, \u001b[38;5;34m64\u001b[0m)             │           \u001b[38;5;34m448\u001b[0m │\n",
+              "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+              "│ dense_26 (\u001b[38;5;33mDense\u001b[0m)                │ (\u001b[38;5;45mNone\u001b[0m, \u001b[38;5;34m32\u001b[0m)             │         \u001b[38;5;34m2,080\u001b[0m │\n",
+              "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+              "│ dense_27 (\u001b[38;5;33mDense\u001b[0m)                │ (\u001b[38;5;45mNone\u001b[0m, \u001b[38;5;34m16\u001b[0m)             │           \u001b[38;5;34m528\u001b[0m │\n",
+              "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+              "│ dense_28 (\u001b[38;5;33mDense\u001b[0m)                │ (\u001b[38;5;45mNone\u001b[0m, \u001b[38;5;34m1\u001b[0m)              │            \u001b[38;5;34m17\u001b[0m │\n",
+              "└─────────────────────────────────┴────────────────────────┴───────────────┘\n"
+            ],
+            "text/html": [
+              "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓\n",
+              "┃<span style=\"font-weight: bold\"> Layer (type)                    </span>┃<span style=\"font-weight: bold\"> Output Shape           </span>┃<span style=\"font-weight: bold\">       Param # </span>┃\n",
+              "┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩\n",
+              "│ dense_25 (<span style=\"color: #0087ff; text-decoration-color: #0087ff\">Dense</span>)                │ (<span style=\"color: #00d7ff; text-decoration-color: #00d7ff\">None</span>, <span style=\"color: #00af00; text-decoration-color: #00af00\">64</span>)             │           <span style=\"color: #00af00; text-decoration-color: #00af00\">448</span> │\n",
+              "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+              "│ dense_26 (<span style=\"color: #0087ff; text-decoration-color: #0087ff\">Dense</span>)                │ (<span style=\"color: #00d7ff; text-decoration-color: #00d7ff\">None</span>, <span style=\"color: #00af00; text-decoration-color: #00af00\">32</span>)             │         <span style=\"color: #00af00; text-decoration-color: #00af00\">2,080</span> │\n",
+              "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+              "│ dense_27 (<span style=\"color: #0087ff; text-decoration-color: #0087ff\">Dense</span>)                │ (<span style=\"color: #00d7ff; text-decoration-color: #00d7ff\">None</span>, <span style=\"color: #00af00; text-decoration-color: #00af00\">16</span>)             │           <span style=\"color: #00af00; text-decoration-color: #00af00\">528</span> │\n",
+              "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+              "│ dense_28 (<span style=\"color: #0087ff; text-decoration-color: #0087ff\">Dense</span>)                │ (<span style=\"color: #00d7ff; text-decoration-color: #00d7ff\">None</span>, <span style=\"color: #00af00; text-decoration-color: #00af00\">1</span>)              │            <span style=\"color: #00af00; text-decoration-color: #00af00\">17</span> │\n",
+              "└─────────────────────────────────┴────────────────────────┴───────────────┘\n",
+              "</pre>\n"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "\u001b[1m Total params: \u001b[0m\u001b[38;5;34m3,073\u001b[0m (12.00 KB)\n"
+            ],
+            "text/html": [
+              "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\"> Total params: </span><span style=\"color: #00af00; text-decoration-color: #00af00\">3,073</span> (12.00 KB)\n",
+              "</pre>\n"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "\u001b[1m Trainable params: \u001b[0m\u001b[38;5;34m3,073\u001b[0m (12.00 KB)\n"
+            ],
+            "text/html": [
+              "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\"> Trainable params: </span><span style=\"color: #00af00; text-decoration-color: #00af00\">3,073</span> (12.00 KB)\n",
+              "</pre>\n"
+            ]
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "\u001b[1m Non-trainable params: \u001b[0m\u001b[38;5;34m0\u001b[0m (0.00 B)\n"
+            ],
+            "text/html": [
+              "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\"> Non-trainable params: </span><span style=\"color: #00af00; text-decoration-color: #00af00\">0</span> (0.00 B)\n",
+              "</pre>\n"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "27932c2b"
+      },
+      "source": [
+        "## Train and Evaluate the Model\n",
+        "\n",
+        "### Subtask:\n",
+        "Train the compiled Deep Learning model using the prepared training data. After training, use the model to make predictions on the test set. Evaluate the model's performance by calculating and displaying the confusion matrix, precision, recall, and accuracy. Include these metrics in a final report.\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "f02d5b81"
+      },
+      "source": [
+        "**Reasoning**:\n",
+        "The next step is to train the compiled Deep Learning model using the prepared training data, as per the first instruction of the subtask. I will fit the model using `X_train` and `Y_train`, and store the training history.\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "48394a9c",
+        "outputId": "d3eaed45-87c1-4479-ede0-7259ae3893e8"
+      },
+      "source": [
+        "epochs = 50\n",
+        "batch_size = 32\n",
+        "\n",
+        "print(f\"Training model for {epochs} epochs with batch size {batch_size}...\")\n",
+        "history = model.fit(X_train, Y_train, epochs=epochs, batch_size=batch_size, verbose=1, validation_split=0.1)\n",
+        "\n",
+        "print(\"Model training complete. Training history stored.\")"
+      ],
+      "execution_count": 36,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Training model for 50 epochs with batch size 32...\n",
+            "Epoch 1/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m3s\u001b[0m 35ms/step - accuracy: 0.5026 - loss: 0.6943 - precision_1: 0.4644 - recall_1: 0.3328 - val_accuracy: 0.5875 - val_loss: 0.6931 - val_precision_1: 0.5366 - val_recall_1: 0.6111\n",
+            "Epoch 2/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 8ms/step - accuracy: 0.5440 - loss: 0.6893 - precision_1: 0.5406 - recall_1: 0.4634 - val_accuracy: 0.5500 - val_loss: 0.6914 - val_precision_1: 0.5000 - val_recall_1: 0.5000\n",
+            "Epoch 3/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 10ms/step - accuracy: 0.5630 - loss: 0.6857 - precision_1: 0.5936 - recall_1: 0.4899 - val_accuracy: 0.5375 - val_loss: 0.6955 - val_precision_1: 0.4902 - val_recall_1: 0.6944\n",
+            "Epoch 4/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 10ms/step - accuracy: 0.5620 - loss: 0.6870 - precision_1: 0.5635 - recall_1: 0.5318 - val_accuracy: 0.5625 - val_loss: 0.6931 - val_precision_1: 0.5111 - val_recall_1: 0.6389\n",
+            "Epoch 5/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 12ms/step - accuracy: 0.5522 - loss: 0.6850 - precision_1: 0.5741 - recall_1: 0.5272 - val_accuracy: 0.5625 - val_loss: 0.6924 - val_precision_1: 0.5128 - val_recall_1: 0.5556\n",
+            "Epoch 6/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.5730 - loss: 0.6818 - precision_1: 0.6010 - recall_1: 0.4841 - val_accuracy: 0.5625 - val_loss: 0.6946 - val_precision_1: 0.5106 - val_recall_1: 0.6667\n",
+            "Epoch 7/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 7ms/step - accuracy: 0.5716 - loss: 0.6790 - precision_1: 0.5525 - recall_1: 0.4992 - val_accuracy: 0.5625 - val_loss: 0.6918 - val_precision_1: 0.5111 - val_recall_1: 0.6389\n",
+            "Epoch 8/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6052 - loss: 0.6724 - precision_1: 0.6092 - recall_1: 0.6021 - val_accuracy: 0.5375 - val_loss: 0.6957 - val_precision_1: 0.4902 - val_recall_1: 0.6944\n",
+            "Epoch 9/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 7ms/step - accuracy: 0.5974 - loss: 0.6736 - precision_1: 0.5885 - recall_1: 0.6149 - val_accuracy: 0.5500 - val_loss: 0.6916 - val_precision_1: 0.5000 - val_recall_1: 0.6389\n",
+            "Epoch 10/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6194 - loss: 0.6696 - precision_1: 0.6202 - recall_1: 0.5664 - val_accuracy: 0.5125 - val_loss: 0.6927 - val_precision_1: 0.4694 - val_recall_1: 0.6389\n",
+            "Epoch 11/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6233 - loss: 0.6690 - precision_1: 0.6578 - recall_1: 0.6262 - val_accuracy: 0.5250 - val_loss: 0.6920 - val_precision_1: 0.4773 - val_recall_1: 0.5833\n",
+            "Epoch 12/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6312 - loss: 0.6636 - precision_1: 0.6487 - recall_1: 0.5792 - val_accuracy: 0.5125 - val_loss: 0.6921 - val_precision_1: 0.4651 - val_recall_1: 0.5556\n",
+            "Epoch 13/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 5ms/step - accuracy: 0.6013 - loss: 0.6739 - precision_1: 0.5943 - recall_1: 0.5154 - val_accuracy: 0.5125 - val_loss: 0.6951 - val_precision_1: 0.4667 - val_recall_1: 0.5833\n",
+            "Epoch 14/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 7ms/step - accuracy: 0.6075 - loss: 0.6707 - precision_1: 0.5885 - recall_1: 0.6389 - val_accuracy: 0.5000 - val_loss: 0.6959 - val_precision_1: 0.4565 - val_recall_1: 0.5833\n",
+            "Epoch 15/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 5ms/step - accuracy: 0.5900 - loss: 0.6683 - precision_1: 0.5850 - recall_1: 0.6265 - val_accuracy: 0.5000 - val_loss: 0.6926 - val_precision_1: 0.4565 - val_recall_1: 0.5833\n",
+            "Epoch 16/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6221 - loss: 0.6573 - precision_1: 0.6531 - recall_1: 0.5847 - val_accuracy: 0.5250 - val_loss: 0.6937 - val_precision_1: 0.4762 - val_recall_1: 0.5556\n",
+            "Epoch 17/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6003 - loss: 0.6564 - precision_1: 0.6086 - recall_1: 0.4957 - val_accuracy: 0.4875 - val_loss: 0.6964 - val_precision_1: 0.4490 - val_recall_1: 0.6111\n",
+            "Epoch 18/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 5ms/step - accuracy: 0.6454 - loss: 0.6514 - precision_1: 0.6351 - recall_1: 0.5902 - val_accuracy: 0.4750 - val_loss: 0.6950 - val_precision_1: 0.4375 - val_recall_1: 0.5833\n",
+            "Epoch 19/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6276 - loss: 0.6661 - precision_1: 0.6289 - recall_1: 0.6833 - val_accuracy: 0.5250 - val_loss: 0.6944 - val_precision_1: 0.4762 - val_recall_1: 0.5556\n",
+            "Epoch 20/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6091 - loss: 0.6549 - precision_1: 0.6195 - recall_1: 0.4905 - val_accuracy: 0.4625 - val_loss: 0.6985 - val_precision_1: 0.4286 - val_recall_1: 0.5833\n",
+            "Epoch 21/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6590 - loss: 0.6466 - precision_1: 0.6540 - recall_1: 0.6950 - val_accuracy: 0.4875 - val_loss: 0.6959 - val_precision_1: 0.4419 - val_recall_1: 0.5278\n",
+            "Epoch 22/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 5ms/step - accuracy: 0.6008 - loss: 0.6603 - precision_1: 0.6160 - recall_1: 0.5496 - val_accuracy: 0.5000 - val_loss: 0.7006 - val_precision_1: 0.4565 - val_recall_1: 0.5833\n",
+            "Epoch 23/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 5ms/step - accuracy: 0.6356 - loss: 0.6539 - precision_1: 0.6141 - recall_1: 0.5739 - val_accuracy: 0.4625 - val_loss: 0.7025 - val_precision_1: 0.4222 - val_recall_1: 0.5278\n",
+            "Epoch 24/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6410 - loss: 0.6462 - precision_1: 0.6426 - recall_1: 0.6598 - val_accuracy: 0.4875 - val_loss: 0.7010 - val_precision_1: 0.4419 - val_recall_1: 0.5278\n",
+            "Epoch 25/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6555 - loss: 0.6446 - precision_1: 0.6429 - recall_1: 0.6040 - val_accuracy: 0.4500 - val_loss: 0.7016 - val_precision_1: 0.4130 - val_recall_1: 0.5278\n",
+            "Epoch 26/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6393 - loss: 0.6507 - precision_1: 0.6130 - recall_1: 0.6817 - val_accuracy: 0.5000 - val_loss: 0.6984 - val_precision_1: 0.4524 - val_recall_1: 0.5278\n",
+            "Epoch 27/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6538 - loss: 0.6388 - precision_1: 0.6543 - recall_1: 0.5773 - val_accuracy: 0.4875 - val_loss: 0.7072 - val_precision_1: 0.4468 - val_recall_1: 0.5833\n",
+            "Epoch 28/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6554 - loss: 0.6352 - precision_1: 0.6348 - recall_1: 0.6734 - val_accuracy: 0.4750 - val_loss: 0.7008 - val_precision_1: 0.4348 - val_recall_1: 0.5556\n",
+            "Epoch 29/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6392 - loss: 0.6378 - precision_1: 0.6438 - recall_1: 0.6058 - val_accuracy: 0.4875 - val_loss: 0.7121 - val_precision_1: 0.4444 - val_recall_1: 0.5556\n",
+            "Epoch 30/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 5ms/step - accuracy: 0.6482 - loss: 0.6403 - precision_1: 0.6544 - recall_1: 0.6587 - val_accuracy: 0.5125 - val_loss: 0.7002 - val_precision_1: 0.4634 - val_recall_1: 0.5278\n",
+            "Epoch 31/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6784 - loss: 0.6298 - precision_1: 0.7010 - recall_1: 0.6434 - val_accuracy: 0.4875 - val_loss: 0.7048 - val_precision_1: 0.4419 - val_recall_1: 0.5278\n",
+            "Epoch 32/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 5ms/step - accuracy: 0.6443 - loss: 0.6374 - precision_1: 0.6634 - recall_1: 0.5978 - val_accuracy: 0.4875 - val_loss: 0.7124 - val_precision_1: 0.4444 - val_recall_1: 0.5556\n",
+            "Epoch 33/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 5ms/step - accuracy: 0.6677 - loss: 0.6215 - precision_1: 0.6769 - recall_1: 0.6468 - val_accuracy: 0.4875 - val_loss: 0.7096 - val_precision_1: 0.4419 - val_recall_1: 0.5278\n",
+            "Epoch 34/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 5ms/step - accuracy: 0.6437 - loss: 0.6323 - precision_1: 0.6367 - recall_1: 0.6168 - val_accuracy: 0.4500 - val_loss: 0.7076 - val_precision_1: 0.4130 - val_recall_1: 0.5278\n",
+            "Epoch 35/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 5ms/step - accuracy: 0.6817 - loss: 0.6182 - precision_1: 0.6711 - recall_1: 0.6290 - val_accuracy: 0.4250 - val_loss: 0.7149 - val_precision_1: 0.4000 - val_recall_1: 0.5556\n",
+            "Epoch 36/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6584 - loss: 0.6237 - precision_1: 0.6481 - recall_1: 0.6567 - val_accuracy: 0.4875 - val_loss: 0.7115 - val_precision_1: 0.4419 - val_recall_1: 0.5278\n",
+            "Epoch 37/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 7ms/step - accuracy: 0.6462 - loss: 0.6265 - precision_1: 0.6809 - recall_1: 0.6025 - val_accuracy: 0.4875 - val_loss: 0.7107 - val_precision_1: 0.4390 - val_recall_1: 0.5000\n",
+            "Epoch 38/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6348 - loss: 0.6196 - precision_1: 0.6718 - recall_1: 0.5867 - val_accuracy: 0.4625 - val_loss: 0.7145 - val_precision_1: 0.4222 - val_recall_1: 0.5278\n",
+            "Epoch 39/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6276 - loss: 0.6358 - precision_1: 0.6296 - recall_1: 0.5962 - val_accuracy: 0.4875 - val_loss: 0.7123 - val_precision_1: 0.4444 - val_recall_1: 0.5556\n",
+            "Epoch 40/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6458 - loss: 0.6325 - precision_1: 0.6484 - recall_1: 0.6671 - val_accuracy: 0.5000 - val_loss: 0.7164 - val_precision_1: 0.4474 - val_recall_1: 0.4722\n",
+            "Epoch 41/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6690 - loss: 0.6136 - precision_1: 0.6993 - recall_1: 0.6296 - val_accuracy: 0.4875 - val_loss: 0.7103 - val_precision_1: 0.4324 - val_recall_1: 0.4444\n",
+            "Epoch 42/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 5ms/step - accuracy: 0.6681 - loss: 0.6157 - precision_1: 0.6936 - recall_1: 0.5993 - val_accuracy: 0.4625 - val_loss: 0.7206 - val_precision_1: 0.4286 - val_recall_1: 0.5833\n",
+            "Epoch 43/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6490 - loss: 0.6180 - precision_1: 0.6371 - recall_1: 0.6080 - val_accuracy: 0.4500 - val_loss: 0.7254 - val_precision_1: 0.4167 - val_recall_1: 0.5556\n",
+            "Epoch 44/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6527 - loss: 0.6211 - precision_1: 0.6325 - recall_1: 0.6276 - val_accuracy: 0.4625 - val_loss: 0.7223 - val_precision_1: 0.4222 - val_recall_1: 0.5278\n",
+            "Epoch 45/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6485 - loss: 0.6247 - precision_1: 0.6296 - recall_1: 0.6493 - val_accuracy: 0.4625 - val_loss: 0.7220 - val_precision_1: 0.4222 - val_recall_1: 0.5278\n",
+            "Epoch 46/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6745 - loss: 0.6073 - precision_1: 0.6623 - recall_1: 0.5933 - val_accuracy: 0.4625 - val_loss: 0.7416 - val_precision_1: 0.4340 - val_recall_1: 0.6389\n",
+            "Epoch 47/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6186 - loss: 0.6220 - precision_1: 0.6068 - recall_1: 0.6859 - val_accuracy: 0.4875 - val_loss: 0.7234 - val_precision_1: 0.4390 - val_recall_1: 0.5000\n",
+            "Epoch 48/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6645 - loss: 0.6096 - precision_1: 0.6747 - recall_1: 0.6322 - val_accuracy: 0.4875 - val_loss: 0.7277 - val_precision_1: 0.4444 - val_recall_1: 0.5556\n",
+            "Epoch 49/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 7ms/step - accuracy: 0.7097 - loss: 0.6033 - precision_1: 0.6894 - recall_1: 0.7136 - val_accuracy: 0.4750 - val_loss: 0.7362 - val_precision_1: 0.4348 - val_recall_1: 0.5556\n",
+            "Epoch 50/50\n",
+            "\u001b[1m23/23\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 6ms/step - accuracy: 0.6848 - loss: 0.6048 - precision_1: 0.6582 - recall_1: 0.7005 - val_accuracy: 0.4875 - val_loss: 0.7270 - val_precision_1: 0.4359 - val_recall_1: 0.4722\n",
+            "Model training complete. Training history stored.\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "78173e70"
+      },
+      "source": [
+        "**Reasoning**:\n",
+        "Now that the model has been trained, I will use it to make predictions on the test data `X_test`. Since the model is for binary classification and uses a Sigmoid activation, the output will be probabilities, which I will then convert to binary class predictions (0 or 1) using a threshold of 0.5, as stated in the subtask instructions.\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "819e9c78",
+        "outputId": "e48c53be-3896-427f-f30d-4c56b6bf4c98"
+      },
+      "source": [
+        "Y_pred_proba = model.predict(X_test)\n",
+        "Y_pred_classes = (Y_pred_proba > 0.5).astype(int)\n",
+        "\n",
+        "print(\"First 10 predicted probabilities:\")\n",
+        "print(Y_pred_proba[:10].flatten())\n",
+        "print(\"\\nFirst 10 predicted classes:\")\n",
+        "print(Y_pred_classes[:10].flatten())"
+      ],
+      "execution_count": 37,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\u001b[1m7/7\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 14ms/step\n",
+            "First 10 predicted probabilities:\n",
+            "[0.6315374  0.6663146  0.44812977 0.6742981  0.7019847  0.4580076\n",
+            " 0.49470645 0.4599126  0.48996094 0.50235724]\n",
+            "\n",
+            "First 10 predicted classes:\n",
+            "[1 1 0 1 1 0 0 0 0 1]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "170aaedb"
+      },
+      "source": [
+        "**Reasoning**:\n",
+        "Now that the predictions are available, I will calculate the confusion matrix, precision, recall, and accuracy scores using `Y_test` and `Y_pred_classes`, and then print these metrics as a final report, as specified in the subtask instructions.\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "f2bc4f2f",
+        "outputId": "b46a6b0d-5eaf-488e-a09f-bf34609bff9f"
+      },
+      "source": [
+        "from sklearn.metrics import confusion_matrix, precision_score, recall_score, accuracy_score\n",
+        "\n",
+        "# Calculate Confusion Matrix\n",
+        "cm = confusion_matrix(Y_test, Y_pred_classes)\n",
+        "\n",
+        "# Calculate Precision, Recall, and Accuracy\n",
+        "precision = precision_score(Y_test, Y_pred_classes)\n",
+        "recall = recall_score(Y_test, Y_pred_classes)\n",
+        "accuracy = accuracy_score(Y_test, Y_pred_classes)\n",
+        "\n",
+        "# Print the final report\n",
+        "print(\"\\n--- Model Evaluation Report ---\")\n",
+        "print(\"\\nConfusion Matrix:\")\n",
+        "print(cm)\n",
+        "print(f\"\\nPrecision: {precision:.4f}\")\n",
+        "print(f\"Recall: {recall:.4f}\")\n",
+        "print(f\"Accuracy: {accuracy:.4f}\")"
+      ],
+      "execution_count": 38,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "--- Model Evaluation Report ---\n",
+            "\n",
+            "Confusion Matrix:\n",
+            "[[44 35]\n",
+            " [64 57]]\n",
+            "\n",
+            "Precision: 0.6196\n",
+            "Recall: 0.4711\n",
+            "Accuracy: 0.5050\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "bbde78c6",
+        "outputId": "9ccd5a28-aa68-4ff1-9023-704c00fc5b7d"
+      },
+      "source": [
+        "from sklearn.metrics import classification_report\n",
+        "\n",
+        "print(\"\\n--- Classification Report ---\")\n",
+        "print(classification_report(Y_test, Y_pred_classes))"
+      ],
+      "execution_count": 39,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "--- Classification Report ---\n",
+            "              precision    recall  f1-score   support\n",
+            "\n",
+            "           0       0.41      0.56      0.47        79\n",
+            "           1       0.62      0.47      0.54       121\n",
+            "\n",
+            "    accuracy                           0.51       200\n",
+            "   macro avg       0.51      0.51      0.50       200\n",
+            "weighted avg       0.54      0.51      0.51       200\n",
+            "\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "38b493e8"
+      },
+      "source": [
+        "## Explain Deep Learning Concepts\n",
+        "\n",
+        "### Subtask:\n",
+        "Provide detailed explanations for key Deep Learning concepts, including activation functions, loss functions, evaluation metrics, and the core processes of neural network training.\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "e0124467"
+      },
+      "source": [
+        "## Explain Deep Learning Concepts\n",
+        "\n",
+        "### Subtask:\n",
+        "Provide detailed explanations for key Deep Learning concepts, including activation functions, loss functions, evaluation metrics, and the core processes of neural network training.\n",
+        "\n",
+        "### Activation Functions\n",
+        "\n",
+        "**Role and Purpose**: Activation functions introduce non-linearity into a neural network, allowing it to learn complex patterns and make decisions based on more than just linear combinations of inputs. Without activation functions, a neural network would essentially be a linear regression model, regardless of how many layers it has. They transform the weighted sum of inputs from a neuron into its output, which then serves as input for the next layer. This non-linearity is crucial for the network to approximate any arbitrary function and solve non-linear problems.\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "afce1ff3"
+      },
+      "source": [
+        "### Loss Functions and Evaluation Metrics for Regression Tasks\n",
+        "\n",
+        "**Linear Activation**: Often used in the output layer of regression models, linear activation (also known as 'no activation') simply outputs the weighted sum of its inputs directly, without any transformation. This is suitable when the output variable can take any real value.\n",
+        "\n",
+        "**Mean Squared Error (MSE)**: This is one of the most common loss functions for regression. It measures the average of the squares of the errors—that is, the average squared difference between the estimated values and the actual value. MSE is always non-negative, and values closer to zero are better. It penalizes larger errors more significantly than smaller ones due to the squaring operation.\n",
+        "\n",
+        "$MSE = \\frac{1}{n} \\sum_{i=1}^{n} (Y_i - \\hat{Y}_i)^2$\n",
+        "\n",
+        "**Mean Absolute Error (MAE)**: MAE is another common loss function for regression. It measures the average of the absolute differences between predictions and actual observations. MAE is less sensitive to outliers than MSE because it does not square the errors.\n",
+        "\n",
+        "$MAE = \\frac{1}{n} \\sum_{i=1}^{n} |Y_i - \\hat{Y}_i|$\n",
+        "\n",
+        "**Root Mean Squared Error (RMSE)**: RMSE is the square root of the MSE. It's often preferred in some contexts because the resulting value is in the same units as the target variable, making it more interpretable than MSE.\n",
+        "\n",
+        "$RMSE = \\sqrt{\\frac{1}{n} \\sum_{i=1}^{n} (Y_i - \\hat{Y}_i)^2}$"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "0d5d66ae"
+      },
+      "source": [
+        "### Loss Functions and Evaluation Metrics for Binary Classification Tasks\n",
+        "\n",
+        "**Sigmoid Activation**: The Sigmoid function, also known as the logistic function, squashes input values into a range between 0 and 1. This makes it ideal for the output layer of binary classification models, where the output can be interpreted as the probability of the positive class. If the probability is greater than 0.5, the output is typically classified as 1 (positive class); otherwise, it's 0 (negative class).\n",
+        "\n",
+        "$Sigmoid(x) = \\frac{1}{1 + e^{-x}}$\n",
+        "\n",
+        "**Binary Cross-Entropy (BCE) Loss**: Binary Cross-Entropy is the standard loss function for binary classification problems. It measures the performance of a classification model whose output is a probability value between 0 and 1. It increases as the predicted probability diverges from the actual label. The goal during training is to minimize this loss.\n",
+        "\n",
+        "$BCE = -\\frac{1}{n} \\sum_{i=1}^{n} [y_i \\log(\\hat{y}_i) + (1 - y_i) \\log(1 - \\hat{y}_i)]$\n",
+        "\n",
+        "where $y_i$ is the true label (0 or 1) and $\\hat{y}_i$ is the predicted probability for the positive class.\n",
+        "\n",
+        "**Accuracy**: Accuracy is a straightforward and widely used evaluation metric for classification tasks. It represents the proportion of correctly predicted instances (both true positives and true negatives) out of the total number of instances. While easy to understand, accuracy can be misleading in cases of imbalanced datasets.\n",
+        "\n",
+        "$Accuracy = \\frac{\\text{Number of Correct Predictions}}{\\text{Total Number of Predictions}}$"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "b7070a38"
+      },
+      "source": [
+        "### Loss Functions and Evaluation Metrics for Multiclass Classification Tasks\n",
+        "\n",
+        "**Softmax Activation**: The Softmax function is commonly used in the output layer of a neural network for multiclass classification. It converts a vector of arbitrary real values into a probability distribution, where the sum of the probabilities is 1. Each value in the output vector represents the probability of the input belonging to a particular class.\n",
+        "\n",
+        "$Softmax(z_j) = \\frac{e^{z_j}}{\\sum_{k=1}^{K} e^{z_k}}$\n",
+        "\n",
+        "where $z_j$ is the output of the $j$-th neuron, and $K$ is the number of classes.\n",
+        "\n",
+        "**Categorical Cross-Entropy Loss**: This is the standard loss function for multiclass classification problems where each instance belongs to exactly one class (one-hot encoded labels). It measures the performance of a classification model whose output is a probability distribution over the $K$ classes.\n",
+        "\n",
+        "$Categorical \\ Cross-Entropy = -\\sum_{c=1}^{C} y_{o,c} \\log(\\hat{y}_{o,c})$\n",
+        "\n",
+        "where $C$ is the number of classes, $y_{o,c}$ is a binary indicator (0 or 1) if class $c$ is the correct classification for observation $o$, and $\\hat{y}_{o,c}$ is the predicted probability of observation $o$ belonging to class $c$.\n",
+        "\n",
+        "**Accuracy**: Similar to binary classification, accuracy in multiclass classification measures the proportion of correctly predicted instances across all classes out of the total number of instances. It's calculated as the number of correct predictions divided by the total number of predictions."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "bdb401f6"
+      },
+      "source": [
+        "### Core Processes of Neural Network Training\n",
+        "\n",
+        "#### Forward Propagation\n",
+        "\n",
+        "**Description**: Forward propagation (also known as forward pass) is the process of passing input data through the neural network to generate an output. During this process, the input features are fed into the input layer, then passed through one or more hidden layers, and finally reach the output layer. At each neuron in a layer, two main steps occur:\n",
+        "\n",
+        "1.  **Weighted Sum**: The inputs from the previous layer are multiplied by their respective weights, and these products are summed up along with a bias term. This is often referred to as the \\\"pre-activation\\\" value or the \\\"net input\\\".\n",
+        "    \n",
+        "    $z = \\sum (w_i x_i) + b$\n",
+        "    \n",
+        "    where $w_i$ are the weights, $x_i$ are the inputs, and $b$ is the bias.\n",
+        "\n",
+        "2.  **Activation**: The weighted sum (z) is then passed through an activation function (e.g., ReLU, Sigmoid, Softmax) to produce the neuron's output. This output then becomes the input for the neurons in the next layer.\n",
+        "    \n",
+        "    $a = \\text{Activation}(z)$\n",
+        "\n",
+        "This process continues layer by layer until the network produces a final output from the output layer. This final output is the network's prediction."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "d9ef006d"
+      },
+      "source": [
+        "#### Loss Calculation\n",
+        "\n",
+        "**Description**: After forward propagation generates a prediction (\\(\\hat{Y}\\)), the next step in the training process is to calculate the 'loss' or 'error' of this prediction. The loss function quantifies how well the network's prediction matches the actual target value (\\(Y\\)). A higher loss indicates a larger discrepancy between the predicted and actual values, while a lower loss signifies a better prediction.\n",
+        "\n",
+        "The choice of loss function depends on the type of problem:\n",
+        "\n",
+        "*   **Regression Tasks**: For regression problems, common loss functions include Mean Squared Error (MSE) and Mean Absolute Error (MAE), which measure the difference between continuous predicted and actual values.\n",
+        "    *   Example (MSE): $L = (Y - \\hat{Y})^2$\n",
+        "\n",
+        "*   **Classification Tasks**: For classification problems, especially binary or multiclass, cross-entropy loss functions are typically used. These functions measure the difference between the predicted probability distribution and the true probability distribution.\n",
+        "    *   Example (Binary Cross-Entropy): $L = -[Y \\log(\\hat{Y}) + (1 - Y) \\log(1 - \\hat{Y})]$\n",
+        "\n",
+        "The calculated loss value is a single scalar that represents the total error for a given prediction or a batch of predictions. This loss value is crucial because it serves as the primary feedback signal that the neural network uses to adjust its internal parameters during training."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ea9372ed"
+      },
+      "source": [
+        "#### Backpropagation\n",
+        "\n",
+        "**Description**: Backpropagation is the core algorithm for training artificial neural networks. After the loss is calculated during forward propagation, backpropagation efficiently computes the gradients of the loss function with respect to every weight and bias in the network. These gradients indicate the direction and magnitude of the change needed for each parameter to reduce the loss.\n",
+        "\n",
+        "The process involves:\n",
+        "\n",
+        "1.  **Error Calculation**: The error (loss) is first calculated at the output layer by comparing the network's prediction with the actual target value.\n",
+        "\n",
+        "2.  **Backward Pass**: The error is then propagated backward through the network, layer by layer, starting from the output layer to the input layer. At each layer, the algorithm calculates the contribution of each neuron's output to the total error.\n",
+        "\n",
+        "3.  **Gradient Computation**: Using the chain rule of calculus, backpropagation computes the partial derivative of the loss function with respect to each weight and bias. This tells us how much a change in a specific weight or bias would affect the overall loss.\n",
+        "\n",
+        "By distributing the error backward, backpropagation allows the network to understand which weights and biases are most responsible for the errors, setting the stage for parameter adjustment."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "7cd30941"
+      },
+      "source": [
+        "#### Weight Update Mechanism\n",
+        "\n",
+        "**Description**: The final stage in a single training iteration is to update the network's weights and biases using the gradients calculated during backpropagation. This is typically done using an optimization algorithm, such as Gradient Descent or its variants (e.g., Adam, RMSprop).\n",
+        "\n",
+        "The primary goal of the weight update is to minimize the loss function. The optimization algorithm uses the gradients to determine the direction and magnitude of the adjustments to be made to each parameter. The general formula for a weight update is:\n",
+        "\n",
+        "$W_{new} = W_{old} - \\\\text{learning_rate} \\times \\\\frac{\\\\partial L}{\\\\partial W}$\n",
+        "\n",
+        "$b_{new} = b_{old} - \\\\text{learning_rate} \\times \\\\frac{\\\\partial L}{\\\\partial b}$\n",
+        "\n",
+        "Where:\n",
+        "*   $W_{new}$ and $b_{new}$ are the updated weight and bias, respectively.\n",
+        "*   $W_{old}$ and $b_{old}$ are the current weight and bias.\n",
+        "*   $\\\\text{learning_rate}$ is a hyperparameter that controls the step size of the update. A small learning rate means slower convergence but potentially more stability, while a large learning rate can lead to faster convergence but may overshoot the optimal solution.\n",
+        "*   $\\\\frac{\\\\partial L}{\\\\partial W}$ and $\\\\frac{\\\\partial L}{\\\\partial b}$ are the gradients of the loss function $L$ with respect to the weight $W$ and bias $b$, respectively.\n",
+        "\n",
+        "This iterative process of forward propagation, loss calculation, backpropagation, and weight update is repeated over many epochs (passes through the entire training dataset) and batches of data until the network converges to a state where the loss is minimized, and it can make accurate predictions on new, unseen data."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "c8e256b6"
+      },
+      "source": [
+        "#### Weight Update Mechanism\n",
+        "\n",
+        "**Description**: The final stage in a single training iteration is to update the network's weights and biases using the gradients calculated during backpropagation. This is typically done using an optimization algorithm, such as Gradient Descent or its variants (e.g., Adam, RMSprop).\n",
+        "\n",
+        "The primary goal of the weight update is to minimize the loss function. The optimization algorithm uses the gradients to determine the direction and magnitude of the adjustments to be made to each parameter. The general formula for a weight update is:\n",
+        "\n",
+        "$W_{new} = W_{old} - \\text{learning_rate} \\times \\frac{\\partial L}{\\partial W}$\n",
+        "\n",
+        "$b_{new} = b_{old} - \\text{learning_rate} \\times \\frac{\\partial L}{\\partial b}$\n",
+        "\n",
+        "Where:\n",
+        "*   $W_{new}$ and $b_{new}$ are the updated weight and bias, respectively.\n",
+        "*   $W_{old}$ and $b_{old}$ are the current weight and bias.\n",
+        "*   $\\text{learning_rate}$ is a hyperparameter that controls the step size of the update. A small learning rate means slower convergence but potentially more stability, while a large learning rate can lead to faster convergence but may overshoot the optimal solution.\n",
+        "*   $\\frac{\\partial L}{\\partial W}$ and $\\frac{\\partial L}{\\partial L}$ are the gradients of the loss function $L$ with respect to the weight $W$ and bias $b$, respectively.\n",
+        "\n",
+        "This iterative process of forward propagation, loss calculation, backpropagation, and weight update is repeated over many epochs (passes through the entire training dataset) and batches of data until the network converges to a state where the loss is minimized, and it can make accurate predictions on new, unseen data."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "5d9ab004"
+      },
+      "source": [
+        "## Final Task\n",
+        "\n",
+        "### Subtask:\n",
+        "Summarize the complete process, including the data preparation steps, model architecture, training results, and the explanations of key deep learning concepts and evaluation metrics.\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "8872ee2d"
+      },
+      "source": [
+        "## Summary:\n",
+        "\n",
+        "### Data Analysis Key Findings\n",
+        "\n",
+        "*   **Data Preparation for Binary Classification**:\n",
+        "    *   The 'target' column was binarized based on its mean, resulting in 514 instances of class 1 and 486 instances of class 0.\n",
+        "    *   The categorical 'feature\\_4' was one-hot encoded, expanding the feature set.\n",
+        "    *   The data was split into training and testing sets with an 80/20 ratio, yielding 800 training samples and 200 testing samples.\n",
+        "    *   Numerical features (`feature_1`, `feature_2`, `feature_3`) were standardized using `StandardScaler`.\n",
+        "*   **Deep Learning Model Architecture**:\n",
+        "    *   A Keras Sequential model was constructed with an input layer matching the 6 preprocessed features.\n",
+        "    *   It included two hidden layers with ReLU activation (64 and 16 neurons).\n",
+        "    *   The output layer consisted of a single neuron with a Sigmoid activation function, suitable for binary classification.\n",
+        "    *   The model was compiled with 'binary\\_crossentropy' loss, 'adam' optimizer, and 'accuracy', 'Precision', and 'Recall' as metrics.\n",
+        "*   **Model Training and Evaluation**:\n",
+        "    *   The model was trained for 50 epochs with a batch size of 32.\n",
+        "    *   Training accuracy reached approximately 0.6848, while validation accuracy was around 0.4875, suggesting potential overfitting.\n",
+        "    *   On the test set, the model achieved an accuracy of 0.5050.\n",
+        "    *   The confusion matrix was `[[44 35], [64 57]]`, indicating 44 True Negatives, 35 False Positives, 64 False Negatives, and 57 True Positives.\n",
+        "    *   The model's precision was 0.6196, and recall was 0.4711.\n",
+        "*   **Deep Learning Concepts Explained**:\n",
+        "    *   Detailed explanations were provided for activation functions (Sigmoid, Softmax, Linear), loss functions (MSE, MAE, RMSE, Binary Cross-Entropy, Categorical Cross-Entropy), and evaluation metrics (Accuracy, Precision, Recall) across different task types.\n",
+        "    *   The core processes of neural network training, including Forward Propagation, Loss Calculation, Backpropagation, and the Weight Update Mechanism, were also comprehensively described.\n",
+        "\n",
+        "### Insights or Next Steps\n",
+        "\n",
+        "*   The current deep learning model performs poorly with an accuracy of approximately 50.5% on the test set, which is barely better than random guessing. Further model tuning, more advanced architectures, or additional feature engineering are necessary.\n",
+        "*   Given the significant gap between training accuracy (0.6848) and validation accuracy (0.4875), the model is likely overfitting the training data. Implementing regularization techniques (e.g., dropout), adjusting model complexity, or gathering more data should be considered to improve generalization.\n"
+      ]
+    }
+  ],
+  "metadata": {
+    "colab": {
+      "name": "Welcome To Colab",
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "display_name": "Python 3",
+      "name": "python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 0
+}
